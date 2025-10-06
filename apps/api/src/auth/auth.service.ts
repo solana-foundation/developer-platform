@@ -44,7 +44,9 @@ export class AuthService {
         throw new UnauthorizedException('Invalid token type');
       }
 
-      const storedToken = await this.storageService.get(`refresh_token:${payload.sub}`);
+      const storedToken = await this.storageService.get(
+        `refresh_token:${payload.sub}`,
+      );
       if (storedToken !== refreshToken) {
         throw new UnauthorizedException('Invalid refresh token');
       }
@@ -54,9 +56,10 @@ export class AuthService {
         throw new UnauthorizedException('User not found');
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...safeUser } = user;
       return this.generateTokens(safeUser);
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
@@ -83,11 +86,15 @@ export class AuthService {
     });
 
     const apiTokenKey = `api_token:${uuidv4()}`;
-    await this.storageService.set(apiTokenKey, JSON.stringify({
-      userId,
-      token,
-      createdAt: new Date().toISOString(),
-    }), 30 * 24 * 60 * 60);
+    await this.storageService.set(
+      apiTokenKey,
+      JSON.stringify({
+        userId,
+        token,
+        createdAt: new Date().toISOString(),
+      }),
+      30 * 24 * 60 * 60,
+    );
 
     await this.addApiTokenToUserList(userId, apiTokenKey);
 
@@ -107,7 +114,12 @@ export class AuthService {
 
     const refreshToken = this.jwtService.sign(
       { ...payload, type: 'refresh' },
-      { expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d') },
+      {
+        expiresIn: this.configService.get<string>(
+          'JWT_REFRESH_EXPIRES_IN',
+          '7d',
+        ),
+      },
     );
 
     await this.storageService.set(
@@ -137,7 +149,8 @@ export class AuthService {
   private async addApiTokenToUserList(userId: string, tokenKey: string) {
     const listKey = `api_tokens:${userId}`;
     const existingList = await this.storageService.get(listKey);
-    const tokens = existingList ? JSON.parse(existingList) : [];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const tokens: string[] = existingList ? JSON.parse(existingList) : [];
     tokens.push(tokenKey);
     await this.storageService.set(listKey, JSON.stringify(tokens));
   }

@@ -37,7 +37,9 @@ export class AirdropService {
     );
   }
 
-  async createAirdrop(createAirdropDto: CreateAirdropDto): Promise<AirdropResponseDto> {
+  async createAirdrop(
+    createAirdropDto: CreateAirdropDto,
+  ): Promise<AirdropResponseDto> {
     await this.initPromise;
 
     const { address: recipientAddress } = createAirdropDto;
@@ -51,13 +53,15 @@ export class AirdropService {
         amount: lamports(BigInt(createAirdropDto.amount * LAMPORTS_PER_SOL)),
       });
 
-      const transactionInput = await createTransaction({
+      const transactionInput = createTransaction({
         feePayer: this.payer,
         instructions: [transferInstruction],
       });
 
       const signature = await sendAndConfirmTransaction(transactionInput);
-      const transaction = await this.client.rpc.getTransaction(signature).send();
+      const transaction = await this.client.rpc
+        .getTransaction(signature)
+        .send();
       // TODO: Handle case where transaction is not found aka retries
       const slot = transaction?.slot ?? BigInt(0);
 
@@ -70,12 +74,15 @@ export class AirdropService {
 
       return response;
     } catch (error) {
-      throw new Error(`Failed to airdrop SOL: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to airdrop SOL: ${message}`);
     }
   }
 
   async getAirdrop(id: string): Promise<AirdropResponseDto | null> {
-    const airdrop = await this.cacheManager.get<AirdropResponseDto>(`airdrop:${id}`);
+    const airdrop = await this.cacheManager.get<AirdropResponseDto>(
+      `airdrop:${id}`,
+    );
     return airdrop || null;
   }
 }

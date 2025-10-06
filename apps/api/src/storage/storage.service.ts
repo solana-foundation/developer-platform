@@ -36,11 +36,19 @@ export class StorageService implements IStorageService {
     return ttl || -1;
   }
 
-  async keys(pattern: string): Promise<string[]> {
+  keys(pattern: string): Promise<string[]> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const stores = this.cacheManager.stores as any;
-    if (stores && stores[0] && stores[0].keys) {
+    if (
+      stores &&
+      Array.isArray(stores) &&
+      stores[0] &&
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      typeof stores[0].keys === 'function'
+    ) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       return stores[0].keys(pattern);
     }
-    return [];
+    return Promise.resolve([]);
   }
 }

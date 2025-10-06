@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { StorageService } from '../storage/storage.service';
 import { AuthService } from '../auth/auth.service';
@@ -16,10 +20,17 @@ export class CliAuthService {
     private configService: ConfigService,
   ) {}
 
-  async requestAuth(): Promise<{ token: string; verificationUrl: string; userCode: string }> {
+  async requestAuth(): Promise<{
+    token: string;
+    verificationUrl: string;
+    userCode: string;
+  }> {
     const token = uuidv4();
     const userCode = this.generateUserCode();
-    const baseUrl = this.configService.get<string>('BASE_URL', 'http://localhost:3000');
+    const baseUrl = this.configService.get<string>(
+      'BASE_URL',
+      'http://localhost:3000',
+    );
 
     const session: CliAuthSession = {
       token,
@@ -48,13 +59,17 @@ export class CliAuthService {
     };
   }
 
-  async getVerificationStatus(token: string): Promise<{ status: string; message: string }> {
+  async getVerificationStatus(
+    token: string,
+  ): Promise<{ status: string; message: string }> {
     const sessionData = await this.storageService.get(`cli_auth:${token}`);
     if (!sessionData) {
-      throw new NotFoundException('Authentication session not found or expired');
+      throw new NotFoundException(
+        'Authentication session not found or expired',
+      );
     }
 
-    const session: CliAuthSession = JSON.parse(sessionData);
+    const session = JSON.parse(sessionData) as CliAuthSession;
 
     return {
       status: session.status,
@@ -65,10 +80,12 @@ export class CliAuthService {
   async confirmAuth(token: string, userId: string): Promise<void> {
     const sessionData = await this.storageService.get(`cli_auth:${token}`);
     if (!sessionData) {
-      throw new NotFoundException('Authentication session not found or expired');
+      throw new NotFoundException(
+        'Authentication session not found or expired',
+      );
     }
 
-    const session: CliAuthSession = JSON.parse(sessionData);
+    const session = JSON.parse(sessionData) as CliAuthSession;
     if (session.status !== 'pending') {
       throw new UnauthorizedException('Session already processed');
     }
@@ -83,13 +100,17 @@ export class CliAuthService {
     );
   }
 
-  async exchangeToken(token: string): Promise<{ apiToken: string; userId: string }> {
+  async exchangeToken(
+    token: string,
+  ): Promise<{ apiToken: string; userId: string }> {
     const sessionData = await this.storageService.get(`cli_auth:${token}`);
     if (!sessionData) {
-      throw new NotFoundException('Authentication session not found or expired');
+      throw new NotFoundException(
+        'Authentication session not found or expired',
+      );
     }
 
-    const session: CliAuthSession = JSON.parse(sessionData);
+    const session = JSON.parse(sessionData) as CliAuthSession;
 
     if (session.status !== 'verified') {
       throw new UnauthorizedException('Session not verified');
@@ -130,7 +151,7 @@ export class CliAuthService {
       return { status: 'expired' };
     }
 
-    const session: CliAuthSession = JSON.parse(sessionData);
+    const session = JSON.parse(sessionData) as CliAuthSession;
 
     if (session.status === 'verified' && session.userId) {
       const result = await this.exchangeToken(token);

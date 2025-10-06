@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { User, SafeUser } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -34,17 +38,20 @@ export class UsersService {
     return this.excludePassword(user);
   }
 
-  async findById(id: string): Promise<User | null> {
-    return this.users.get(id) || null;
+  findById(id: string): Promise<User | null> {
+    return Promise.resolve(this.users.get(id) || null);
   }
 
-  async findByEmail(email: string): Promise<User | null> {
+  findByEmail(email: string): Promise<User | null> {
     const userId = this.emailIndex.get(email);
-    if (!userId) return null;
-    return this.users.get(userId) || null;
+    if (!userId) return Promise.resolve(null);
+    return Promise.resolve(this.users.get(userId) || null);
   }
 
-  async validateUser(email: string, password: string): Promise<SafeUser | null> {
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<SafeUser | null> {
     const user = await this.findByEmail(email);
     if (!user) return null;
 
@@ -65,16 +72,16 @@ export class UsersService {
     this.users.set(userId, user);
   }
 
-  async findByApiKey(apiKey: string): Promise<User | null> {
+  findByApiKey(apiKey: string): Promise<User | null> {
     for (const user of this.users.values()) {
       if (user.apiKey === apiKey) {
-        return user;
+        return Promise.resolve(user);
       }
     }
-    return null;
+    return Promise.resolve(null);
   }
 
-  async regenerateApiKey(userId: string): Promise<string> {
+  regenerateApiKey(userId: string): Promise<string> {
     const user = this.users.get(userId);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -84,7 +91,7 @@ export class UsersService {
     user.apiKey = newApiKey;
     user.updatedAt = new Date();
     this.users.set(userId, user);
-    return newApiKey;
+    return Promise.resolve(newApiKey);
   }
 
   private generateApiKey(): string {
@@ -94,6 +101,7 @@ export class UsersService {
   }
 
   private excludePassword(user: User): SafeUser {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...safeUser } = user;
     return safeUser;
   }

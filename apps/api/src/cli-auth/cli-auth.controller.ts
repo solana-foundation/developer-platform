@@ -39,7 +39,7 @@ export class CliAuthController {
 
   @Public()
   @Get('verify')
-  async verifyPage(
+  verifyPage(
     @Query('token') token: string,
     @Query('code') code: string,
     @Res() res: Response,
@@ -168,7 +168,7 @@ export class CliAuthController {
   @HttpCode(HttpStatus.OK)
   async confirmAuth(
     @Param('token') token: string,
-    @CurrentUser() user,
+    @CurrentUser() user: { userId: string },
   ) {
     await this.cliAuthService.confirmAuth(token, user.userId);
     return { message: 'Authentication confirmed' };

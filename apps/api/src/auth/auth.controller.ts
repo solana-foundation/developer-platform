@@ -14,6 +14,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
+import { SafeUser } from '../users/interfaces/user.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -29,7 +30,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Request() req) {
+  async login(@Request() req: { user: SafeUser }) {
     return this.authService.login(req.user);
   }
 
@@ -41,33 +42,33 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@CurrentUser() user) {
+  getProfile(@CurrentUser() user: SafeUser): SafeUser {
     return user;
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async logout(@CurrentUser() user) {
+  async logout(@CurrentUser() user: { userId: string }) {
     await this.authService.logout(user.userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('api-token')
-  async generateApiToken(@CurrentUser() user) {
+  async generateApiToken(@CurrentUser() user: { userId: string }) {
     const token = await this.authService.generateApiToken(user.userId);
     return { token };
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('api-key')
-  async getApiKey(@CurrentUser() user) {
+  async getApiKey(@CurrentUser() user: { userId: string }) {
     return this.authService.getUserApiKey(user.userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('api-key/regenerate')
-  async regenerateApiKey(@CurrentUser() user) {
+  async regenerateApiKey(@CurrentUser() user: { userId: string }) {
     const newApiKey = await this.authService.regenerateApiKey(user.userId);
     return { apiKey: newApiKey };
   }
