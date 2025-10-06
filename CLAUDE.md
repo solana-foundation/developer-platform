@@ -114,6 +114,19 @@ Redis is required for the API to function. Start it via:
 cd apps/api && docker-compose up -d
 ```
 
+## Pre-commit Hooks
+
+The project uses Husky and lint-staged for automated code quality checks:
+
+- **Pre-commit hook** runs automatically on `git commit`
+- **API files** (`apps/api/**/*.ts`): ESLint with NestJS rules + Prettier
+- **Web files** (`apps/web/**/*.tsx`): Next.js ESLint + Prettier
+- **Other files** (JSON, MD, CSS): Prettier only
+- Shared Prettier config at root (`.prettierrc`)
+- Each workspace has its own ESLint configuration
+
+The hooks will auto-fix issues and re-stage files. Commits fail if unfixable errors remain.
+
 ## Important Notes
 
 - The frontend is configured for CORS at `http://localhost:3001` in `apps/api/src/main.ts`
