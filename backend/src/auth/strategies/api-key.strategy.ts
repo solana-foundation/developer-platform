@@ -7,25 +7,23 @@ import { Request } from 'express';
 @Injectable()
 export class ApiKeyStrategy extends PassportStrategy(Strategy, 'api-key') {
   constructor(private usersService: UsersService) {
-    super(async (req: Request, callback: Function) => {
-      return await this.validate(req, callback);
-    });
+    super();
   }
 
-  private async validate(req: Request, callback: Function) {
+  async validate(req: Request): Promise<any> {
     const apiKey = this.extractApiKey(req);
 
     if (!apiKey) {
-      return callback(null, false);
+      throw new UnauthorizedException('API key not provided');
     }
 
     const user = await this.usersService.findByApiKey(apiKey);
 
     if (!user) {
-      return callback(new UnauthorizedException('Invalid API key'), false);
+      throw new UnauthorizedException('Invalid API key');
     }
 
-    return callback(null, { userId: user.id, email: user.email });
+    return { userId: user.id, email: user.email };
   }
 
   private extractApiKey(req: Request): string | null {

@@ -37,9 +37,9 @@ export class StorageService implements IStorageService {
   }
 
   async keys(pattern: string): Promise<string[]> {
-    const store = this.cacheManager.store as any;
-    if (store.keys) {
-      return store.keys(pattern);
+    const stores = this.cacheManager.stores as any;
+    if (stores && stores[0] && stores[0].keys) {
+      return stores[0].keys(pattern);
     }
     return [];
   }
