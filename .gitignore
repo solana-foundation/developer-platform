@@ -4,3 +4,13 @@ dist
 .env.local
 .env.*.backup
 target
+
+# Turbo
+.turbo
+
+# Next.js
+.next
+
+# Build outputs
+build
+out
