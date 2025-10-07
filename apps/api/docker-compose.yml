@@ -1,6 +1,23 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: backend-postgres
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: devplatform
+      POSTGRES_PASSWORD: devplatform_dev_password
+      POSTGRES_DB: developer_platform
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U devplatform -d developer_platform']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   redis:
     image: redis:7-alpine
     container_name: backend-redis
@@ -16,4 +33,5 @@ services:
       retries: 5
 
 volumes:
+  postgres-data:
   redis-data:

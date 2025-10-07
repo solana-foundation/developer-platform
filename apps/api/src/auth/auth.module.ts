@@ -7,6 +7,8 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { ApiKeyStrategy } from './strategies/api-key.strategy';
+import { ApiKeysRepository } from './repositories/api-keys.repository';
+import { ApiKeysService } from './services/api-keys.service';
 import { UsersModule } from '../users/users.module';
 import { StorageModule } from '../storage/storage.module';
 
@@ -28,7 +30,14 @@ import { StorageModule } from '../storage/storage.module';
     ConfigModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, ApiKeyStrategy],
-  exports: [AuthService],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    ApiKeyStrategy,
+    ApiKeysRepository,
+    ApiKeysService,
+  ],
+  exports: [AuthService, ApiKeysRepository, ApiKeysService],
 })
 export class AuthModule {}

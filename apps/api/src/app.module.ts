@@ -7,11 +7,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AirdropService } from './airdrop/airdrop.service';
 import { AirdropController } from './airdrop/airdrop.controller';
+import { DatabaseModule } from './database/database.module';
 import { StorageModule } from './storage/storage.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { CliAuthModule } from './cli-auth/cli-auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { MigrationService } from './database/migrations/migration.service';
 
 @Module({
   imports: [
@@ -30,6 +32,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
         };
       },
     }),
+    DatabaseModule,
     StorageModule,
     UsersModule,
     AuthModule,
@@ -39,6 +42,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
   providers: [
     AppService,
     AirdropService,
+    MigrationService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

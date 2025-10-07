@@ -4,11 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Turbo monorepo containing:
+This is a Turbo monorepo for open-source Solana developer tools maintained by the Solana Foundation. It contains:
 
 - **apps/api**: NestJS backend with Solana integration and authentication
-- **apps/web**: Next.js 15 frontend with React 19 and Tailwind CSS 4
+- **apps/web**: Next.js 15 marketing site with React 19 and Tailwind CSS 4
 - **programs/**: Anchor/Solana smart contracts (Rust)
+
+**Project Purpose**: Helper tools for Anchor developers - simplifies wallet authentication, program testing, and devnet deployments without replacing existing workflows. This is NOT a full platform like Vercel, but a collection of utilities to streamline common development tasks.
 
 The API and web apps run independently but are configured to work together (API on port 3000, web on 3001).
 
@@ -50,8 +52,6 @@ Example:
 ```bash
 cd apps/web && npx shadcn@latest add dialog
 ```
-
-View the test page at `/test-components` to see example Button and Card components.
 
 ### Solana/Anchor Commands (run from programs/)
 
@@ -158,7 +158,6 @@ The codebase is self-documenting through:
 - TypeScript interfaces and types define component APIs
 - JSDoc comments explain complex logic
 - This CLAUDE.md file contains architecture and setup guidance
-- Code examples in test pages (`/test-components`, `/airdrop`, etc.)
 
 Developers should read the code, not outdated markdown files. Over-documentation creates maintenance burden and quickly becomes stale.
 
@@ -168,17 +167,38 @@ The web app uses shadcn/ui built on Radix UI primitives with Tailwind CSS v4. Ke
 
 - **Configuration**: `apps/web/components.json` defines component paths and aliases
 - **Utilities**: `apps/web/lib/utils.ts` provides the `cn()` helper for className merging
-- **Theme**: Dark mode by default using CSS variables in `apps/web/app/globals.css`
+- **Theme**: System-responsive dark/light mode via `next-themes` in `apps/web/app/layout.tsx`
+- **Theme Colors**: Defined in `apps/web/app/globals.css` using `@theme` directive
+  - Solana brand colors: `--color-primary` (purple #9945FF), `--color-success` (green #14F195)
+  - Uses OKLCH color space for Tailwind v4 compatibility
 - **Components**: Located in `apps/web/components/ui/`
 - **Path Aliases**: `@/` maps to the web app root (configured in `tsconfig.json`)
 
-### Tailwind v4 Compatibility Notes
+### Tailwind v4 Migration Notes
 
-When working with shadcn/ui and Tailwind v4:
+This project uses **Tailwind CSS v4** with significant differences from v3:
 
-- Use `darkMode: 'class'` instead of `darkMode: ['class']` in config
-- Avoid `@apply` with custom utility classes - use CSS properties directly
-- Example: Use `border-color: hsl(var(--border))` instead of `@apply border-border`
+- **No `tailwind.config.ts`**: Configuration is done via CSS `@theme` directive in `globals.css`
+- **Import syntax**: Use `@import "tailwindcss"` instead of `@tailwind` directives
+- **Color format**: Use OKLCH instead of HSL (e.g., `oklch(0.68 0.24 286)` for purple)
+- **CSS variables**: Prefix with `--color-`, `--radius-`, etc. in `@theme` block
+- **Theme management**: Use `next-themes` library instead of custom providers
+  - System theme detection enabled by default
+  - No manual theme toggle (respects OS preferences)
+
+## Marketing Content Guidelines
+
+The web app (`apps/web`) is a marketing site for Solana Foundation developer tools:
+
+- **Positioning**: Open-source helper tools, NOT a full platform replacement
+- **Tone**: Community-focused, non-profit, educational
+- **Key messaging**:
+  - "Essential tools for Solana developers" (not "complete platform")
+  - Emphasize Anchor integration and workflow enhancement
+  - Highlight open-source nature and Solana Foundation backing
+  - Free for all developers
+- **Avoid**: Corporate/enterprise language, SaaS pricing talk, "scale without limits" claims
+- **Brand colors**: Use Solana purple (#9945FF) and green (#14F195) from official branding
 
 ## Important Notes
 

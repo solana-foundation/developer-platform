@@ -3,10 +3,10 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { StorageService } from '../storage/storage.service';
+import { ApiKeysService } from './services/api-keys.service';
 import { RegisterDto } from './dto/register.dto';
 import { SafeUser } from '../users/interfaces/user.interface';
 import { JwtPayload } from './strategies/jwt.strategy';
-import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +15,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private storageService: StorageService,
+    private apiKeysService: ApiKeysService,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -66,7 +67,6 @@ export class AuthService {
 
   async logout(userId: string) {
     await this.storageService.del(`refresh_token:${userId}`);
-    await this.storageService.del(`api_tokens:${userId}`);
   }
 
   async generateApiToken(userId: string): Promise<string> {
@@ -75,30 +75,35 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    const payload: JwtPayload = {
-      sub: userId,
-      email: user.email,
-      type: 'api',
+    return this.apiKeysService.generateApiKey(userId, 'API Key');
+  }
+
+  async getUserApiKey(userId: string): Promise<{ apiKeys: any[] }> {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const keys = await this.apiKeysService.listUserApiKeys(userId);
+
+    // Map to legacy format for backward compatibility
+    return {
+      apiKeys: keys.map((key) => ({
+        key: key.keyPreview,
+        createdAt: key.createdAt,
+        expiresAt: key.expiresAt,
+        lastUsedAt: key.lastUsedAt,
+        totalRequests: key.totalRequests,
+      })),
     };
+  }
 
-    const token = this.jwtService.sign(payload, {
-      expiresIn: this.configService.get<string>('API_TOKEN_EXPIRES_IN', '30d'),
-    });
+  async regenerateApiKey(userId: string): Promise<string> {
+    // Revoke all existing keys
+    await this.apiKeysService.revokeAllApiKeys(userId);
 
-    const apiTokenKey = `api_token:${uuidv4()}`;
-    await this.storageService.set(
-      apiTokenKey,
-      JSON.stringify({
-        userId,
-        token,
-        createdAt: new Date().toISOString(),
-      }),
-      30 * 24 * 60 * 60,
-    );
-
-    await this.addApiTokenToUserList(userId, apiTokenKey);
-
-    return token;
+    // Generate a new one
+    return this.generateApiToken(userId);
   }
 
   private async generateTokens(user: SafeUser) {
@@ -132,26 +137,5 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
-  }
-
-  async getUserApiKey(userId: string): Promise<{ apiKey: string | null }> {
-    const user = await this.usersService.findById(userId);
-    if (!user) {
-      throw new UnauthorizedException('User not found');
-    }
-    return { apiKey: user.apiKey || null };
-  }
-
-  async regenerateApiKey(userId: string): Promise<string> {
-    return this.usersService.regenerateApiKey(userId);
-  }
-
-  private async addApiTokenToUserList(userId: string, tokenKey: string) {
-    const listKey = `api_tokens:${userId}`;
-    const existingList = await this.storageService.get(listKey);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const tokens: string[] = existingList ? JSON.parse(existingList) : [];
-    tokens.push(tokenKey);
-    await this.storageService.set(listKey, JSON.stringify(tokens));
   }
 }
