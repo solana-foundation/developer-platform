@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { CacheModule } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-ioredis-yet';
+import { ScheduleModule } from '@nestjs/schedule';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AirdropService } from './airdrop/airdrop.service';
 import { AirdropController } from './airdrop/airdrop.controller';
+import { AirdropsRepository } from './airdrop/repositories/airdrops.repository';
 import { DatabaseModule } from './database/database.module';
 import { StorageModule } from './storage/storage.module';
 import { UsersModule } from './users/users.module';
@@ -20,18 +20,7 @@ import { MigrationService } from './database/migrations/migration.service';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    CacheModule.registerAsync({
-      isGlobal: true,
-      useFactory: async () => {
-        const store = await redisStore({
-          host: process.env.REDIS_HOST || 'localhost',
-          port: parseInt(process.env.REDIS_PORT || '6379'),
-        });
-        return {
-          store: store as any,
-        };
-      },
-    }),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     StorageModule,
     UsersModule,
@@ -42,6 +31,7 @@ import { MigrationService } from './database/migrations/migration.service';
   providers: [
     AppService,
     AirdropService,
+    AirdropsRepository,
     MigrationService,
     {
       provide: APP_GUARD,

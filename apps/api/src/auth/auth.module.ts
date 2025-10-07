@@ -8,14 +8,19 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { ApiKeyStrategy } from './strategies/api-key.strategy';
 import { ApiKeysRepository } from './repositories/api-keys.repository';
+import { ApiKeyUsageDailyRepository } from './repositories/api-key-usage-daily.repository';
 import { ApiKeysService } from './services/api-keys.service';
+import { ApiUsageAggregationService } from './services/api-usage-aggregation.service';
+import { ApiUsageArchivalService } from './services/api-usage-archival.service';
 import { UsersModule } from '../users/users.module';
 import { StorageModule } from '../storage/storage.module';
+import { DatabaseModule } from '../database/database.module';
 
 @Module({
   imports: [
     UsersModule,
     StorageModule,
+    DatabaseModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -36,7 +41,10 @@ import { StorageModule } from '../storage/storage.module';
     JwtStrategy,
     ApiKeyStrategy,
     ApiKeysRepository,
+    ApiKeyUsageDailyRepository,
     ApiKeysService,
+    ApiUsageAggregationService,
+    ApiUsageArchivalService,
   ],
   exports: [AuthService, ApiKeysRepository, ApiKeysService],
 })

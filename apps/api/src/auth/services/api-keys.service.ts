@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export interface ApiKeyMetadata {
   key: string;
+  keyHash: string;
   name: string;
   createdAt: string;
   expiresAt: string;
@@ -68,6 +69,9 @@ export class ApiKeysService {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + this.API_KEY_TTL * 1000);
 
+    // Generate hash for PostgreSQL storage (also needed for aggregation)
+    const keyHash = await bcrypt.hash(apiKey, 10);
+
     // Store in Redis for fast lookup (primary storage)
     await this.storageService.set(
       `api_key:${apiKey}`,
@@ -75,9 +79,10 @@ export class ApiKeysService {
       this.API_KEY_TTL,
     );
 
-    // Store metadata in Redis
+    // Store metadata in Redis (including hash for aggregation job)
     const metadata: ApiKeyMetadata = {
       key: apiKey,
+      keyHash,
       name,
       createdAt: now.toISOString(),
       expiresAt: expiresAt.toISOString(),
@@ -108,7 +113,6 @@ export class ApiKeysService {
     await this.storageService.expire(usageTotalKey, this.USAGE_TTL);
 
     // PostgreSQL: Fire-and-forget audit trail (doesn't block response)
-    const keyHash = await bcrypt.hash(apiKey, 10);
     this.apiKeysRepository
       .create({
         userId,

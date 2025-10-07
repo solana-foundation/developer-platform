@@ -1,7 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import type { Cache } from 'cache-manager';
+import { Injectable } from '@nestjs/common';
+import { StorageService } from '../storage/storage.service';
 import { AirdropResponseDto, CreateAirdropDto } from './airdrop.dto';
+import { AirdropsRepository } from './repositories/airdrops.repository';
 import {
   address,
   createSolanaClient,
@@ -19,7 +19,10 @@ export class AirdropService {
   private payer: Awaited<ReturnType<typeof createKeyPairSignerFromBytes>>;
   private initPromise: Promise<void>;
 
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {
+  constructor(
+    private storageService: StorageService,
+    private airdropsRepository: AirdropsRepository,
+  ) {
     const rpcUrl = process.env.RPC_URL;
     const keypairSecret = process.env.KEYPAIR;
 
@@ -38,6 +41,7 @@ export class AirdropService {
   }
 
   async createAirdrop(
+    userId: string,
     createAirdropDto: CreateAirdropDto,
   ): Promise<AirdropResponseDto> {
     await this.initPromise;
@@ -68,9 +72,30 @@ export class AirdropService {
       const airdropId = randomUUID();
       const response = new AirdropResponseDto(signature, Number(slot));
 
-      // Store in Redis with 24 hour TTL (86400 seconds)
+      // PostgreSQL: Fire-and-forget write for permanent audit trail
+      this.airdropsRepository
+        .create({
+          userId,
+          signature,
+          slot: Number(slot),
+          recipient: recipientAddress,
+          amount: createAirdropDto.amount,
+          status: 'confirmed',
+        })
+        .catch((err) =>
+          console.error(
+            '[AirdropService] Failed to store airdrop in PostgreSQL:',
+            err,
+          ),
+        );
+
+      // Store in Redis cache with 24 hour TTL (86400 seconds)
       const ttl = parseInt(process.env.AIRDROP_TTL || '86400');
-      await this.cacheManager.set(`airdrop:${airdropId}`, response, ttl * 1000);
+      await this.storageService.set(
+        `airdrop:${airdropId}`,
+        JSON.stringify(response),
+        ttl,
+      );
 
       return response;
     } catch (error) {
@@ -80,9 +105,10 @@ export class AirdropService {
   }
 
   async getAirdrop(id: string): Promise<AirdropResponseDto | null> {
-    const airdrop = await this.cacheManager.get<AirdropResponseDto>(
-      `airdrop:${id}`,
-    );
-    return airdrop || null;
+    const airdropJson = await this.storageService.get(`airdrop:${id}`);
+    if (!airdropJson) return null;
+
+    const airdrop = JSON.parse(airdropJson) as AirdropResponseDto;
+    return airdrop;
   }
 }
