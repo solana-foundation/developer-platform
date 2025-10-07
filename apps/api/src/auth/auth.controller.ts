@@ -88,6 +88,16 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Post('api-keys')
+  async createApiKey(
+    @CurrentUser() user: { userId: string },
+    @Body('name') name: string,
+  ) {
+    const token = await this.apiKeysService.generateApiKey(user.userId, name);
+    return { token };
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('api-keys/:keyId/usage')
   async getApiKeyUsage(
     @CurrentUser() user: { userId: string },

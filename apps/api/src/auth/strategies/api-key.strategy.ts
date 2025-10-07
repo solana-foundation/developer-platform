@@ -17,8 +17,9 @@ export class ApiKeyStrategy extends PassportStrategy(Strategy, 'api-key') {
   async validate(req: Request): Promise<any> {
     const apiKey = this.extractApiKey(req);
 
+    // If no API key detected, return null to allow other strategies (JWT) to handle
     if (!apiKey) {
-      throw new UnauthorizedException('API key not provided');
+      return null;
     }
 
     if (!apiKey.startsWith('sk_')) {

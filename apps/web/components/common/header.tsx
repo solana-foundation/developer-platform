@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AuthModal } from '@/components/auth/login-modal';
 
@@ -35,6 +36,22 @@ export function Header() {
               </span>
             </div>
             <nav className="hidden md:flex items-center gap-6">
+              {session && (
+                <>
+                  <Link
+                    href="/dashboard/api-keys"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    API Keys
+                  </Link>
+                  <Link
+                    href="/dashboard/airdrop"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Airdrop
+                  </Link>
+                </>
+              )}
               <a
                 href="#"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
