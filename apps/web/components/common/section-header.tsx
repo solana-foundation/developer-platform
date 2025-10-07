@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import React from 'react';
 
 interface SectionHeaderProps {
   title: string;
@@ -16,7 +17,7 @@ export function SectionHeader({
   level = 2,
   className,
 }: SectionHeaderProps) {
-  const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
+  const HeadingTag = `h${level}` as keyof React.JSX.IntrinsicElements;
 
   const headingStyles = {
     1: 'text-4xl font-bold',
