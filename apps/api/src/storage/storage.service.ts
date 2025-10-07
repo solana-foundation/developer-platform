@@ -51,4 +51,73 @@ export class StorageService implements IStorageService {
     }
     return Promise.resolve([]);
   }
+
+  async hset(key: string, field: string, value: string): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const stores = this.cacheManager.stores as any;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (stores && Array.isArray(stores) && stores[0] && stores[0].client) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      await stores[0].client.hset(key, field, value);
+    }
+  }
+
+  async hget(key: string, field: string): Promise<string | null> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const stores = this.cacheManager.stores as any;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (stores && Array.isArray(stores) && stores[0] && stores[0].client) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      const value = (await stores[0].client.hget(key, field)) as string | null;
+      return value || null;
+    }
+    return null;
+  }
+
+  async hgetall(key: string): Promise<Record<string, string>> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const stores = this.cacheManager.stores as any;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (stores && Array.isArray(stores) && stores[0] && stores[0].client) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      const value = (await stores[0].client.hgetall(key)) as Record<
+        string,
+        string
+      >;
+      return value || {};
+    }
+    return {};
+  }
+
+  async hincrby(
+    key: string,
+    field: string,
+    increment: number,
+  ): Promise<number> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const stores = this.cacheManager.stores as any;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (stores && Array.isArray(stores) && stores[0] && stores[0].client) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      const value = (await stores[0].client.hincrby(
+        key,
+        field,
+        increment,
+      )) as number;
+      return value;
+    }
+    return 0;
+  }
+
+  async incr(key: string): Promise<number> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const stores = this.cacheManager.stores as any;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (stores && Array.isArray(stores) && stores[0] && stores[0].client) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      const value = (await stores[0].client.incr(key)) as number;
+      return value;
+    }
+    return 0;
+  }
 }

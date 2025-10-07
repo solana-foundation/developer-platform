@@ -27,13 +27,16 @@ export class JwtAuthGuard extends AuthGuard(['jwt', 'api-key']) {
   handleRequest<TUser = any>(
     err: any,
     user: any,
-    info: any,
-    context: ExecutionContext,
-    status?: any,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _info: any,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _context: ExecutionContext,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _status?: any,
   ): TUser {
     if (err || !user) {
       throw err || new UnauthorizedException();
     }
-    return user;
+    return user as TUser;
   }
 }
