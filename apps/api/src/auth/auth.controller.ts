@@ -14,7 +14,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { SafeUser } from '../users/interfaces/user.interface';
+import type { SafeUser } from '../users/interfaces/user.interface';
 
 @Controller('auth')
 export class AuthController {

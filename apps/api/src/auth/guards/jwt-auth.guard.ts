@@ -24,7 +24,13 @@ export class JwtAuthGuard extends AuthGuard(['jwt', 'api-key']) {
     return super.canActivate(context);
   }
 
-  handleRequest(err: Error | null, user: unknown) {
+  handleRequest<TUser = any>(
+    err: any,
+    user: any,
+    info: any,
+    context: ExecutionContext,
+    status?: any,
+  ): TUser {
     if (err || !user) {
       throw err || new UnauthorizedException();
     }
