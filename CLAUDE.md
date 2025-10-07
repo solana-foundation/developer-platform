@@ -37,6 +37,22 @@ The API and web apps run independently but are configured to work together (API 
 - `npm run build --filter=@developer-platform/web` - Build Next.js app
 - `npm run lint --filter=@developer-platform/web` - Lint frontend
 
+#### Adding shadcn/ui Components
+
+The web app uses shadcn/ui for UI components. To add new components:
+
+```bash
+cd apps/web && npx shadcn@latest add <component-name>
+```
+
+Example:
+
+```bash
+cd apps/web && npx shadcn@latest add dialog
+```
+
+View the test page at `/test-components` to see example Button and Card components.
+
 ### Solana/Anchor Commands (run from programs/)
 
 - `anchor build` - Build Anchor programs
@@ -126,6 +142,43 @@ The project uses Husky and lint-staged for automated code quality checks:
 - Each workspace has its own ESLint configuration
 
 The hooks will auto-fix issues and re-stage files. Commits fail if unfixable errors remain.
+
+## Git Commit Guidelines
+
+**NEVER include Co-Authored-By or any co-authorship attribution in commit messages.**
+
+Commit messages should be clean and concise without any attribution to AI assistance.
+
+## Documentation Philosophy
+
+**DO NOT create separate documentation files (README.md, COMPONENTS.md, API.md, etc.) unless explicitly requested.**
+
+The codebase is self-documenting through:
+
+- TypeScript interfaces and types define component APIs
+- JSDoc comments explain complex logic
+- This CLAUDE.md file contains architecture and setup guidance
+- Code examples in test pages (`/test-components`, `/airdrop`, etc.)
+
+Developers should read the code, not outdated markdown files. Over-documentation creates maintenance burden and quickly becomes stale.
+
+## UI Components (shadcn/ui)
+
+The web app uses shadcn/ui built on Radix UI primitives with Tailwind CSS v4. Key setup details:
+
+- **Configuration**: `apps/web/components.json` defines component paths and aliases
+- **Utilities**: `apps/web/lib/utils.ts` provides the `cn()` helper for className merging
+- **Theme**: Dark mode by default using CSS variables in `apps/web/app/globals.css`
+- **Components**: Located in `apps/web/components/ui/`
+- **Path Aliases**: `@/` maps to the web app root (configured in `tsconfig.json`)
+
+### Tailwind v4 Compatibility Notes
+
+When working with shadcn/ui and Tailwind v4:
+
+- Use `darkMode: 'class'` instead of `darkMode: ['class']` in config
+- Avoid `@apply` with custom utility classes - use CSS properties directly
+- Example: Use `border-color: hsl(var(--border))` instead of `@apply border-border`
 
 ## Important Notes
 
