@@ -1,5 +1,5 @@
 use crate::cli::DeployCommands;
-use crate::config::credentials::CredentialManager;
+use crate::auth::CredentialsStore;
 use crate::error::{CliError, Result};
 use colored::Colorize;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -63,14 +63,8 @@ async fn deploy_program(
     description: Option<String>,
 ) -> Result<()> {
     // Get API token
-    let credential_manager = CredentialManager::new()?;
-    let api_token = credential_manager.get_api_token()?;
-
-    if api_token.is_empty() {
-        return Err(CliError::Unauthorized(
-            "No API token found. Please run 'sdt auth login' first.".to_string(),
-        ));
-    }
+    let credentials = CredentialsStore::load()?;
+    let api_token = &credentials.api_token;
 
     println!(
         "{} {}",
@@ -135,8 +129,7 @@ async fn deploy_program(
             program_path: Some(program_path.display().to_string()),
         })
         .send()
-        .await
-        .map_err(|e| CliError::NetworkError(e.to_string()))?;
+        .await?;
 
     if !response.status().is_success() {
         spinner.finish_and_clear();
