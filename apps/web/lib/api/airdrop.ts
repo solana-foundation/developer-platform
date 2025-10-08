@@ -1,6 +1,7 @@
 import type {
   CreateAirdropRequest,
   AirdropResponse,
+  AirdropHistoryResponse,
 } from '@/lib/types/airdrop';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -43,6 +44,24 @@ export async function requestAirdrop(
   });
 
   return handleResponse<AirdropResponse>(response);
+}
+
+export async function fetchAirdropHistory(
+  accessToken: string,
+  limit: number = 10,
+  offset: number = 0,
+): Promise<AirdropHistoryResponse> {
+  const response = await fetch(
+    `${API_URL}/airdrop/history?limit=${limit}&offset=${offset}`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return handleResponse<AirdropHistoryResponse>(response);
 }
 
 export { AirdropError };

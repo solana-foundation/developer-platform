@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,7 @@ interface LoginFormProps {
 
 export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
   const [isLoading, setIsLoading] = React.useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -48,6 +50,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
       } else if (result?.ok) {
         toast.success('Welcome back!');
         onSuccess?.();
+        router.push('/dashboard');
       }
     } catch (error) {
       toast.error('An unexpected error occurred');

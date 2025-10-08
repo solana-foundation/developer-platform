@@ -5,6 +5,14 @@ import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AuthModal } from '@/components/auth/login-modal';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { UserIcon, LogOutIcon } from 'lucide-react';
 
 export function Header() {
   const { data: session } = useSession();
@@ -22,35 +30,27 @@ export function Header() {
   };
 
   const handleSignOut = async () => {
-    await signOut({ redirect: false });
+    await signOut({ redirect: true, callbackUrl: '/' });
   };
 
   return (
     <>
-      <header className="border-b border-border">
+      <header className="border-b border-border bg-background">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <span className="font-mono text-lg font-bold text-foreground">
                 SOLANA
               </span>
-            </div>
+            </Link>
             <nav className="hidden md:flex items-center gap-6">
               {session && (
-                <>
-                  <Link
-                    href="/dashboard/api-keys"
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    API Keys
-                  </Link>
-                  <Link
-                    href="/dashboard/airdrop"
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    Airdrop
-                  </Link>
-                </>
+                <Link
+                  href="/dashboard"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Dashboard
+                </Link>
               )}
               <a
                 href="#"
@@ -68,29 +68,38 @@ export function Header() {
                 href="#"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                Pricing
-              </a>
-              <a
-                href="#"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Enterprise
+                Support
               </a>
             </nav>
           </div>
           <div className="flex items-center gap-3">
             {session ? (
               <>
-                <span className="text-sm text-muted-foreground hidden md:block">
-                  {session.user.email}
-                </span>
-                <Button
-                  variant="ghost"
-                  className="text-foreground"
-                  onClick={handleSignOut}
-                >
-                  Sign Out
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="gap-2">
+                      <UserIcon className="size-4" />
+                      <span className="hidden md:inline">
+                        {session.user.email}
+                      </span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/dashboard/settings"
+                        className="cursor-pointer"
+                      >
+                        Settings
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      <LogOutIcon className="size-4" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             ) : (
               <>

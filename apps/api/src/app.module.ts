@@ -7,6 +7,8 @@ import { AppService } from './app.service';
 import { AirdropService } from './airdrop/airdrop.service';
 import { AirdropController } from './airdrop/airdrop.controller';
 import { AirdropsRepository } from './airdrop/repositories/airdrops.repository';
+import { AirdropUsageDailyRepository } from './airdrop/repositories/airdrop-usage-daily.repository';
+import { AirdropUsageAggregationService } from './airdrop/services/airdrop-usage-aggregation.service';
 import { DatabaseModule } from './database/database.module';
 import { StorageModule } from './storage/storage.module';
 import { UsersModule } from './users/users.module';
@@ -32,6 +34,8 @@ import { MigrationService } from './database/migrations/migration.service';
     AppService,
     AirdropService,
     AirdropsRepository,
+    AirdropUsageDailyRepository,
+    AirdropUsageAggregationService,
     MigrationService,
     {
       provide: APP_GUARD,

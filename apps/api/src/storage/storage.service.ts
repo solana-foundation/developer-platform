@@ -60,6 +60,14 @@ export class StorageService implements IStorageService {
     return await this.redis.hincrby(key, field, increment);
   }
 
+  async hincrbyfloat(
+    key: string,
+    field: string,
+    increment: number,
+  ): Promise<string> {
+    return await this.redis.hincrbyfloat(key, field, increment);
+  }
+
   async incr(key: string): Promise<number> {
     return await this.redis.incr(key);
   }

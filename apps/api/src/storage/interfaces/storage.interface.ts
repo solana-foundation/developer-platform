@@ -12,6 +12,7 @@ export interface IStorageService {
   hget(key: string, field: string): Promise<string | null>;
   hgetall(key: string): Promise<Record<string, string>>;
   hincrby(key: string, field: string, increment: number): Promise<number>;
+  hincrbyfloat(key: string, field: string, increment: number): Promise<string>;
 
   // Counter operations for rate limiting
   incr(key: string): Promise<number>;

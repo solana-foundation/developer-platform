@@ -198,4 +198,16 @@ export class AirdropsRepository {
       totalAmount: result.rows[0].totalAmount,
     };
   }
+
+  async countByUser(userId: string): Promise<number> {
+    const result = await this.databaseService.query<{ count: string }>(
+      `
+      SELECT COUNT(*) as count
+      FROM airdrops
+      WHERE user_id = $1
+    `,
+      [userId],
+    );
+    return parseInt(result.rows[0].count, 10);
+  }
 }
