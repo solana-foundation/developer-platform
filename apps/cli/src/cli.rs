@@ -116,6 +116,27 @@ Note: Params must be valid JSON array format when provided.
         #[command(subcommand)]
         command: RpcCommands,
     },
+
+    /// Deploy Solana programs with rent-free hosting
+    #[command(long_about = "\
+Deploy Solana programs with rent-free temporary hosting
+
+Programs are deployed and hosted for free with a 7-day expiration period.
+You must claim authority within 7 days or the program will be reclaimed.
+
+Projects automatically organize your program deployments. If a project
+doesn't exist, it will be created automatically.
+
+EXAMPLES:
+  Deploy to devnet:     sdt deploy program ./target/deploy/my_program.so
+  Deploy to testnet:    sdt deploy program ./target/deploy/my_program.so --cluster testnet
+  Custom project name:  sdt deploy program ./program.so --project my-project
+  With description:     sdt deploy program ./program.so --description 'My awesome program'
+")]
+    Deploy {
+        #[command(subcommand)]
+        command: DeployCommands,
+    },
 }
 
 #[derive(Debug, Subcommand)]
@@ -313,4 +334,44 @@ EXAMPLE:
   sdt rpc info
 ")]
     Info,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum DeployCommands {
+    /// Deploy a Solana program
+    #[command(long_about = "\
+Deploy a Solana program with rent-free temporary hosting
+
+The program will be deployed to the specified cluster and hosted for 7 days.
+You must claim authority within this period or it will be reclaimed.
+
+If you don't specify a project name, the current directory name will be used.
+If you don't specify a program name, the filename will be used.
+
+EXAMPLES:
+  Basic deploy:         sdt deploy program ./target/deploy/my_program.so
+  Custom names:         sdt deploy program ./program.so --project my-dapp --program token-mint
+  With description:     sdt deploy program ./program.so --description 'Token minting program'
+  Deploy to testnet:    sdt deploy program ./program.so --cluster testnet
+")]
+    Program {
+        /// Path to the compiled program (.so file)
+        program_path: std::path::PathBuf,
+
+        /// Project name (defaults to current directory name)
+        #[arg(short, long)]
+        project: Option<String>,
+
+        /// Program name (defaults to filename)
+        #[arg(short = 'n', long)]
+        name: Option<String>,
+
+        /// Target cluster
+        #[arg(short, long, default_value = "devnet", value_parser = ["devnet", "testnet", "mainnet-beta"])]
+        cluster: String,
+
+        /// Program description
+        #[arg(short, long)]
+        description: Option<String>,
+    },
 }

@@ -293,4 +293,29 @@ export class ProgramsRepository {
       byStatus,
     };
   }
+
+  async updateProjectId(id: string, projectId: string): Promise<void> {
+    await this.databaseService.query(
+      `
+      UPDATE programs
+      SET project_id = $1
+      WHERE id = $2
+    `,
+      [projectId, id],
+    );
+  }
+
+  async updateProgramAddress(
+    id: string,
+    programAddress: string,
+  ): Promise<void> {
+    await this.databaseService.query(
+      `
+      UPDATE programs
+      SET program_address = $1
+      WHERE id = $2
+    `,
+      [programAddress, id],
+    );
+  }
 }

@@ -1,7 +1,7 @@
 use clap::Parser;
 use solana_dev_tools::{
     cli::{Cli, Commands},
-    commands::{handle_apikey_command, handle_auth_command, handle_airdrop_command, handle_config_command, handle_rpc_command},
+    commands::{handle_apikey_command, handle_auth_command, handle_airdrop_command, handle_config_command, handle_rpc_command, handle_deploy_command},
     config::manager::ConfigManager,
     error::Result,
 };
@@ -56,6 +56,9 @@ async fn run() -> Result<()> {
         }
         Commands::Rpc { command } => {
             handle_rpc_command(command, &api_url).await?;
+        }
+        Commands::Deploy { command } => {
+            handle_deploy_command(command, &api_url).await?;
         }
     }
 
