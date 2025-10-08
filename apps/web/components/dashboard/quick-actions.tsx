@@ -1,22 +1,21 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Rocket, Plus, Upload } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
-export function QuickActions() {
+interface QuickActionsProps {
+  onCreateClick?: () => void;
+}
+
+export function QuickActions({ onCreateClick }: QuickActionsProps) {
   return (
     <div className="flex items-center gap-3">
-      <Button variant="outline" className="font-mono gap-2 bg-transparent">
-        <Upload className="w-4 h-4" />
-        Import Program
-      </Button>
-      <Button variant="outline" className="font-mono gap-2 bg-transparent">
+      <Button
+        onClick={onCreateClick}
+        className="bg-primary text-primary-foreground hover:bg-primary/90 font-mono gap-2"
+      >
         <Plus className="w-4 h-4" />
         New Program
-      </Button>
-      <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-mono gap-2">
-        <Rocket className="w-4 h-4" />
-        Deploy
       </Button>
     </div>
   );
