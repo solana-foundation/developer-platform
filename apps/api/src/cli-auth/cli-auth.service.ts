@@ -27,9 +27,9 @@ export class CliAuthService {
   }> {
     const token = uuidv4();
     const userCode = this.generateUserCode();
-    const baseUrl = this.configService.get<string>(
-      'BASE_URL',
-      'http://localhost:3000',
+    const webAppUrl = this.configService.get<string>(
+      'WEB_APP_URL',
+      'http://localhost:3001',
     );
 
     const session: CliAuthSession = {
@@ -37,7 +37,7 @@ export class CliAuthService {
       status: 'pending',
       createdAt: new Date(),
       expiresAt: new Date(Date.now() + this.CLI_TOKEN_TTL * 1000),
-      browserUrl: `${baseUrl}/cli-auth/verify?token=${token}&code=${userCode}`,
+      browserUrl: `${webAppUrl}/cli-auth/verify?token=${token}&code=${userCode}`,
     };
 
     await this.storageService.set(

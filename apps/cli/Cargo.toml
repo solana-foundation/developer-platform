@@ -1,0 +1,53 @@
+[package]
+name = "solana-dev-tools"
+version = "0.1.0"
+edition = "2021"
+authors = ["Solana Foundation"]
+description = "Command-line tools for Solana developers"
+license = "MIT"
+
+[[bin]]
+name = "sdt"
+path = "src/main.rs"
+
+[dependencies]
+# CLI framework
+clap = { version = "4", features = ["derive", "cargo", "env"] }
+
+# Async runtime & HTTP
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Configuration
+confy = "0.6"
+toml = "0.8"
+
+# Credentials
+keyring = { version = "3", features = ["apple-native", "windows-native", "sync-secret-service"] }
+
+# Error handling
+color-eyre = "0.6"
+thiserror = "2"
+
+# User feedback
+indicatif = "0.17"
+colored = "2"
+comfy-table = "7"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Utilities
+dirs = "5"
+open = "5"
+
+[dev-dependencies]
+assert_cmd = "2"
+wiremock = "0.6"
+mockito = "1"
+tempfile = "3"
