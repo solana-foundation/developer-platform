@@ -102,6 +102,37 @@ pub struct ApiKeyUsageStats {
     pub last_used_at: Option<String>,
 }
 
+#[derive(Debug, Serialize)]
+pub struct JsonRpcRequest {
+    pub jsonrpc: String,
+    pub id: u64,
+    pub method: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub params: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct JsonRpcResponse {
+    pub jsonrpc: String,
+    pub id: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub result: Option<serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<JsonRpcError>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct JsonRpcError {
+    pub code: i64,
+    pub message: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RpcProviderInfo {
+    pub total: u32,
+    pub providers: Vec<String>,
+}
+
 /// HTTP client for interacting with the API
 pub struct ApiClient {
     client: reqwest::Client,
@@ -306,5 +337,62 @@ impl ApiClient {
 
         let usage_response: ApiKeyUsageResponse = response.json().await?;
         Ok(usage_response.usage)
+    }
+
+    /// Send a JSON-RPC request through the authenticated proxy
+    pub async fn send_rpc_request(
+        &self,
+        method: &str,
+        params: Option<serde_json::Value>,
+    ) -> Result<JsonRpcResponse> {
+        let url = format!("{}/rpc", self.base_url);
+        let headers = self.build_headers()?;
+
+        let payload = JsonRpcRequest {
+            jsonrpc: "2.0".to_string(),
+            id: 1,
+            method: method.to_string(),
+            params,
+        };
+
+        let response = self
+            .client
+            .post(&url)
+            .headers(headers)
+            .json(&payload)
+            .send()
+            .await?;
+
+        if !response.status().is_success() {
+            let status = response.status();
+            let text = response.text().await.unwrap_or_default();
+            return Err(CliError::ApiResponseError {
+                status: status.as_u16(),
+                message: text,
+            });
+        }
+
+        let rpc_response: JsonRpcResponse = response.json().await?;
+        Ok(rpc_response)
+    }
+
+    /// Get RPC provider information
+    pub async fn get_rpc_info(&self) -> Result<RpcProviderInfo> {
+        let url = format!("{}/rpc/info", self.base_url);
+        let headers = self.build_headers()?;
+
+        let response = self.client.get(&url).headers(headers).send().await?;
+
+        if !response.status().is_success() {
+            let status = response.status();
+            let text = response.text().await.unwrap_or_default();
+            return Err(CliError::ApiResponseError {
+                status: status.as_u16(),
+                message: text,
+            });
+        }
+
+        let info: RpcProviderInfo = response.json().await?;
+        Ok(info)
     }
 }
