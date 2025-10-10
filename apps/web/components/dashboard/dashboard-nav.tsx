@@ -5,11 +5,9 @@ import { usePathname } from 'next/navigation';
 
 const navItems = [
   { name: 'Overview', href: '/dashboard' },
-  { name: 'Programs', href: '/dashboard/programs' },
-  { name: 'Deployments', href: '/dashboard/deployments' },
   { name: 'Airdrop', href: '/dashboard/airdrop' },
   { name: 'API Keys', href: '/dashboard/api-keys' },
-  { name: 'Settings', href: '/dashboard/settings' },
+  { name: 'API Docs', href: '/dashboard/api-docs' },
 ];
 
 export function DashboardNav() {

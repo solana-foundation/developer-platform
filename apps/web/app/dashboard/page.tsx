@@ -55,10 +55,45 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <ProgramsList
-              onCreateClick={handleCreateClick}
-              onProgramClick={handleProgramClick}
-            />
+            <div className="relative">
+              <div className="absolute inset-0 bg-background/50 backdrop-blur-[2px] z-10 flex items-center justify-center">
+                <div className="bg-card border border-border px-4 py-2 shadow-lg">
+                  <p className="text-sm font-mono text-muted-foreground">
+                    Coming Soon
+                  </p>
+                </div>
+              </div>
+              <div className="pointer-events-none opacity-40">
+                <ProgramsList
+                  onCreateClick={handleCreateClick}
+                  onProgramClick={handleProgramClick}
+                />
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 bg-background/50 backdrop-blur-[2px] z-10 flex items-center justify-center">
+                <div className="bg-card border border-border px-4 py-2 shadow-lg">
+                  <p className="text-sm font-mono text-muted-foreground">
+                    Coming Soon
+                  </p>
+                </div>
+              </div>
+              <div className="pointer-events-none opacity-40">
+                <section className="border border-border bg-card">
+                  <div className="p-6 border-b border-border">
+                    <h2 className="text-xl font-bold font-mono text-foreground">
+                      Deployments
+                    </h2>
+                  </div>
+                  <div className="p-12 text-center">
+                    <p className="text-muted-foreground">
+                      Track your deployment history and manage releases
+                    </p>
+                  </div>
+                </section>
+              </div>
+            </div>
           </div>
           <div className="lg:col-span-1">
             <ActivityFeed />

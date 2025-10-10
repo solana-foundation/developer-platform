@@ -17,6 +17,7 @@ import { CliAuthModule } from './cli-auth/cli-auth.module';
 import { RpcModule } from './rpc/rpc.module';
 import { ProgramsModule } from './programs/programs.module';
 import { ProjectsModule } from './projects/projects.module';
+import { WalletModule } from './wallet/wallet.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { MigrationService } from './database/migrations/migration.service';
 
@@ -34,6 +35,7 @@ import { MigrationService } from './database/migrations/migration.service';
     RpcModule,
     ProgramsModule,
     ProjectsModule,
+    WalletModule,
   ],
   controllers: [AppController, AirdropController],
   providers: [

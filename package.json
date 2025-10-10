@@ -12,7 +12,8 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "sdt": "cd apps/cli && cargo run --"
   },
   "devDependencies": {
     "husky": "^9.1.7",
