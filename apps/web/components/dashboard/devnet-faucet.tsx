@@ -8,6 +8,7 @@ import { Droplet, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { requestAirdrop, fetchAirdropHistory } from '@/lib/api/airdrop';
 import type { AirdropHistoryItem } from '@/lib/types/airdrop';
+import { TX_EXPLORER_URL } from '@/lib/config/env';
 
 interface DevnetFaucetProps {
   accessToken: string;
@@ -88,7 +89,7 @@ export function DevnetFaucet({ accessToken }: DevnetFaucetProps) {
                 ...item,
                 signature: response.signature,
                 status: 'confirmed',
-                explorerUrl: `https://solscan.io/tx/${response.signature}?cluster=devnet`,
+                explorerUrl: `${TX_EXPLORER_URL}/tx/${response.signature}?cluster=devnet`,
               }
             : item,
         ),

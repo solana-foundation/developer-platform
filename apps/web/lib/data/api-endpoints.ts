@@ -1,3 +1,5 @@
+import { API_BASE_URL } from '@/lib/config/env';
+
 export interface ApiParameter {
   name: string;
   type: string;
@@ -37,12 +39,7 @@ export interface ApiEndpoint {
 }
 
 export function getApiBaseUrl(): string {
-  if (typeof window !== 'undefined') {
-    // Client-side: use environment variable or default
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-  }
-  // Server-side: use environment variable or default
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  return API_BASE_URL;
 }
 
 export const API_ENDPOINTS: ApiEndpoint[] = [

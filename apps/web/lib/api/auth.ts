@@ -4,8 +4,9 @@ import type {
   AuthResponse,
   ApiError,
 } from '@/lib/types/auth';
+import { API_BASE_URL } from '@/lib/config/env';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_URL = API_BASE_URL;
 
 class AuthApiError extends Error {
   constructor(

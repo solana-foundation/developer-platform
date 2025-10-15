@@ -16,6 +16,7 @@ import { CopyButton } from '@/components/common/copy-button';
 import type { Program } from '@/lib/types/program';
 import { formatDistanceToNow } from 'date-fns';
 import { Clock, ExternalLink, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { SOLANA_EXPLORER_URL } from '@/lib/config/env';
 
 interface ProgramDetailDialogProps {
   program: Program | null;
@@ -30,7 +31,7 @@ export function ProgramDetailDialog({
 }: ProgramDetailDialogProps) {
   if (!program) return null;
 
-  const explorerUrl = `https://explorer.solana.com/address/${program.programAddress}?cluster=${program.cluster}`;
+  const explorerUrl = `${SOLANA_EXPLORER_URL}/address/${program.programAddress}?cluster=${program.cluster}`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

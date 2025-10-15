@@ -5,8 +5,9 @@ import type {
   AppendLogRequest,
   ClaimProgramRequest,
 } from '@/lib/types/program';
+import { API_BASE_URL } from '@/lib/config/env';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_URL = API_BASE_URL;
 
 class ProgramError extends Error {
   constructor(

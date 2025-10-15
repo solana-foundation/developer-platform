@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/card';
 import { requestAirdrop } from '@/lib/api/airdrop';
 import { ExternalLink } from 'lucide-react';
+import { SOLANA_EXPLORER_URL } from '@/lib/config/env';
 
 const airdropSchema = z.object({
   address: z
@@ -144,7 +145,7 @@ export function AirdropForm({ accessToken }: AirdropFormProps) {
                 </code>
                 <Button variant="outline" size="sm" asChild>
                   <a
-                    href={`https://explorer.solana.com/tx/${lastSignature}?cluster=devnet`}
+                    href={`${SOLANA_EXPLORER_URL}/tx/${lastSignature}?cluster=devnet`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
