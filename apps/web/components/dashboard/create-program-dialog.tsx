@@ -127,7 +127,7 @@ export function CreateProgramDialog({
                 className="font-mono text-xs"
               />
               <p className="text-xs text-muted-foreground">
-                The deployed program's public key on Solana
+                The deployed program&apos;s public key on Solana
               </p>
             </div>
 

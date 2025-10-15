@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { confirmCliAuth } from '@/lib/api/cli-auth';
 
-export default function CliAuthVerifyPage() {
+function CliAuthVerifyContent() {
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -113,7 +113,7 @@ export default function CliAuthVerifyPage() {
         <CardHeader>
           <CardTitle>CLI Authentication</CardTitle>
           <CardDescription>
-            Confirm this code matches what's shown in your terminal
+            Confirm this code matches what&apos;s shown in your terminal
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -148,5 +148,22 @@ export default function CliAuthVerifyPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function CliAuthVerifyPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-muted-foreground">Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <CliAuthVerifyContent />
+    </Suspense>
   );
 }
