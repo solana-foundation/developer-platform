@@ -46,6 +46,30 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Create environment variables file
+        run: |
+          cat > /tmp/env-vars.yaml <<EOF
+          NODE_ENV: ${{ secrets.NODE_ENV }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: 1h
+          JWT_REFRESH_EXPIRES_IN: 7d
+          API_TOKEN_EXPIRES_IN: 30d
+          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
+          RPC_URL: ${{ secrets.RPC_URL }}
+          RPC_PROVIDERS: ${{ secrets.RPC_PROVIDERS }}
+          KEYPAIR: "${{ secrets.KEYPAIR }}"
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: "6379"
+          DATABASE_HOST: /cloudsql/${{ secrets.PROJECT_ID }}:us-central1:analytics-postgres
+          DATABASE_PORT: "5432"
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          AIRDROP_DAILY_VOLUME_LIMIT: "10"
+          AIRDROP_DAILY_REQUEST_LIMIT: "50"
+          AIRDROP_MAX_AMOUNT_PER_REQUEST: "5"
+          EOF
+
       - name: Deploy to Google Cloud Run
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \
@@ -62,25 +86,7 @@ jobs:
             --timeout=60 \
             --concurrency=80 \
             --cpu-boost \
-            --set-env-vars="NODE_ENV=${{ secrets.NODE_ENV }},\
-          JWT_SECRET=${{ secrets.JWT_SECRET }},\
-          JWT_EXPIRES_IN=1h,\
-          JWT_REFRESH_EXPIRES_IN=7d,\
-          API_TOKEN_EXPIRES_IN=30d,\
-          CORS_ORIGIN=${{ secrets.CORS_ORIGIN }},\
-          RPC_URL=${{ secrets.RPC_URL }},\
-          RPC_PROVIDERS=${{ secrets.RPC_PROVIDERS }},\
-          KEYPAIR=${{ secrets.KEYPAIR }},\
-          REDIS_HOST=${{ secrets.REDIS_HOST }},\
-          REDIS_PORT=6379,\
-          DATABASE_HOST=/cloudsql/${{ secrets.PROJECT_ID }}:us-central1:analytics-postgres,\
-          DATABASE_PORT=5432,\
-          DATABASE_NAME=${{ secrets.DATABASE_NAME }},\
-          DATABASE_USER=${{ secrets.DATABASE_USER }},\
-          DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }},\
-          AIRDROP_DAILY_VOLUME_LIMIT=10,\
-          AIRDROP_DAILY_REQUEST_LIMIT=50,\
-          AIRDROP_MAX_AMOUNT_PER_REQUEST=5"
+            --env-vars-file=/tmp/env-vars.yaml
 
       - name: Show deployment URL
         run: |
