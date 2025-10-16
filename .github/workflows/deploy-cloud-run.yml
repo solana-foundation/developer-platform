@@ -1,0 +1,90 @@
+name: Deploy API to Google Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/api/**'
+      - 'package*.json'
+      - 'turbo.json'
+      - '.github/workflows/deploy-cloud-run.yml'
+
+env:
+  PROJECT_ID: ${{ secrets.PROJECT_ID }}
+  SERVICE_NAME: developer-platform-api
+  IMAGE_NAME: developer-platform-api
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCR_JSON_KEY }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-docker.pkg.dev
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: |
+            us-docker.pkg.dev/${{ secrets.PROJECT_ID }}/us.gcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            us-docker.pkg.dev/${{ secrets.PROJECT_ID }}/us.gcr.io/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy to Google Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image us-docker.pkg.dev/${{ secrets.PROJECT_ID }}/us.gcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --port=3000 \
+            --region=us-central1 \
+            --allow-unauthenticated \
+            --service-account=315956366746-compute@developer.gserviceaccount.com \
+            --set-cloudsql-instances=${{ secrets.PROJECT_ID }}:us-central1:analytics-postgres \
+            --min-instances=0 \
+            --max-instances=10 \
+            --memory=1Gi \
+            --cpu=1 \
+            --timeout=60 \
+            --concurrency=80 \
+            --cpu-boost \
+            --set-env-vars="NODE_ENV=${{ secrets.NODE_ENV }},\
+          JWT_SECRET=${{ secrets.JWT_SECRET }},\
+          JWT_EXPIRES_IN=1h,\
+          JWT_REFRESH_EXPIRES_IN=7d,\
+          API_TOKEN_EXPIRES_IN=30d,\
+          CORS_ORIGIN=${{ secrets.CORS_ORIGIN }},\
+          RPC_URL=${{ secrets.RPC_URL }},\
+          RPC_PROVIDERS=${{ secrets.RPC_PROVIDERS }},\
+          KEYPAIR=${{ secrets.KEYPAIR }},\
+          REDIS_HOST=${{ secrets.REDIS_HOST }},\
+          REDIS_PORT=6379,\
+          DATABASE_HOST=/cloudsql/${{ secrets.PROJECT_ID }}:us-central1:analytics-postgres,\
+          DATABASE_PORT=5432,\
+          DATABASE_NAME=${{ secrets.DATABASE_NAME }},\
+          DATABASE_USER=${{ secrets.DATABASE_USER }},\
+          DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }},\
+          AIRDROP_DAILY_VOLUME_LIMIT=10,\
+          AIRDROP_DAILY_REQUEST_LIMIT=50,\
+          AIRDROP_MAX_AMOUNT_PER_REQUEST=5"
+
+      - name: Show deployment URL
+        run: |
+          echo "Deployment complete!"
+          gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region=us-central1 \
+            --format='value(status.url)'
