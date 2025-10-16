@@ -6,10 +6,11 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Support multiple CORS origins (comma-separated)
-  const corsOrigins = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
-    : ['http://localhost:3001', 'https://developer-platform-web.vercel.app'];
+  // Support multiple CORS origins (hardcoded for now)
+  const corsOrigins = [
+    'http://localhost:3001',
+    'https://developer-platform-web.vercel.app',
+  ];
 
   app.enableCors({
     origin: corsOrigins,
