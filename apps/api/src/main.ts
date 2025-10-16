@@ -9,7 +9,7 @@ async function bootstrap() {
   // Support multiple CORS origins (comma-separated)
   const corsOrigins = process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
-    : ['http://localhost:3001'];
+    : ['http://localhost:3001', 'https://developer-platform-web.vercel.app'];
 
   app.enableCors({
     origin: corsOrigins,
